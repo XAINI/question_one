@@ -12,16 +12,24 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :roles
 
-  before_save :validate_name
+  before_save :validate_name, :set_authentication_token
 
   def validate_name
     if !(Regex.IsMatch(self.name, @"^[A-Za-z][A-Za-z0-9_\-]"))
-      
+      errors.add_to_base("姓名格式不正确")
     end
   end
 
+  def set_authentication_token
+    self.authentication_token = auto_create_token(32)
+  end
 
 
-  
+  def auto_create_token( len )
+    chars = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
+    auto_create_token = ""
+    1.upto(len) { |i| auto_create_token << chars[rand(chars.size-1)] }
+    return auto_create_token
+  end
 
 end   
